@@ -42,7 +42,7 @@ when you run `make.sh`, you will see os arch list, select the right arch. If you
 ## how to use
 > Note: The following commands will only associate the specified workspace `~/colcon_ws`, if you want to change it then you need to modify `XRROS_COLCON_WS`, command: `export XRROS_COLCON_WS=your ros2 workspace path`.
 
-In order to simplify the execution of commands in ros2, the following commands have been implemented, and the following commands can all be set by pressing the <TAB> key for complementary settings
+In order to simplify the execution of commands in ros2, the following commands have been implemented, and the following commands can all be set by pressing the <strong style="color:red">TAB</strong> key for complementary settings
 
 ### ros2cd
 > Open the ros2 package source directory, like ros1's command `roscd`
