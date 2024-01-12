@@ -87,12 +87,34 @@ ros2build
 ros2run <package-name> <node-name>
 ```
 
+### ros2list
+> list some ros2 parameters
+
+```shell
+ros2list <arg>
+# supported parameters 
+# action     component  param      service    
+# interface  node       pkg        topic  
+```
+
 ### ros2kill
 > Violent termination of all ros2 nodes
 
+- list current ros2 node
+```shell
+ros2kill list
+```
+
+- kill all ROS2 node
 ```shell
 ros2kill
 ```
+
+- Violent kill ros2 node
+```shell
+ros2kill <node-name>
+``` 
+
 ### ros2clean
 > Remove ros2 build log file and runtime logs
 

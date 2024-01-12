@@ -127,7 +127,32 @@ ros2kill(){
     local ros_ver
     if [ "$1" != "" ];then
     # 杀死所有ROS 2进程
-        _kill_with_name $1
+        if [ "$1" == "list" ]; then
+            # 获取ROS 2节点列表
+            node_list=$(ros2 node list)
+
+            # 将节点列表分割成数组，并去除前导斜杠
+            IFS=$'\n' read -d '' -r -a nodes <<< "$node_list"
+
+            # 去除节点名称中的前导斜杠
+            for i in "${!nodes[@]}"
+            do
+                nodes[$i]=${nodes[$i]#"/"}
+            done
+            echo "---------------------------------------------------------------------------"
+            echo -e "${YELLOW}current ros2 node list. You can use follow command to kill the node${NC}"
+            echo -e "${GREEN}ros2kill <node-name>${NC}or just ${GREEN}ros2kill${NC} to kill all"
+            echo "---------------------------------------------------------------------------"
+            for node in "${nodes[@]}"
+            do
+                echo "$node"
+            done
+            complete -W "${nodes[*]} list" ros2kill
+
+        else
+            # 杀死所有ROS 2进程
+            _kill_with_name $1
+        fi
     else
         ros_ver=$(printenv ROS_DISTRO)
         _kill_with_name $ros_ver
@@ -141,9 +166,20 @@ ros2clean(){
     echo "rm -rf $home_directory/$ros_workspace/log"
     rm -rf $home_directory/$ros_workspace/log
 }
+
+ros2list(){
+    if [ "$1" != "" ]; then
+        ros2 $1 list
+    else
+        echo "${ERROR}Missing params: ros2list <arg>${NC}"
+    fi
+}
+
 complete -F _ros2launch_complete ros2launch
 complete -F _ros2run_complete ros2run
 complete -W "${package_array[*]}" ros2cd
 complete -W "${package_array[*]}" ros2build
+complete -W "list" ros2kill
+complete -W "topic node service interface pkg param component action" ros2list
 # export yourself workspace
 export XRROS_COLCON_WS="$ros2_install_dir"
