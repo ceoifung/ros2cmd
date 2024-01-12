@@ -119,6 +119,12 @@ ros2kill(){
     pkill -f "$ros_workspace"
 }
 
+ros2clean(){
+    echo "rm -rf $home_directory/.ros/log"
+    rm -rf $home_directory/.ros/log
+    echo "rm -rf $home_directory/$ros_workspace/log"
+    rm -rf $home_directory/$ros_workspace/log
+}
 complete -F _ros2launch_complete ros2launch
 complete -F _ros2run_complete ros2run
 complete -W "${package_array[*]}" ros2cd
