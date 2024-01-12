@@ -82,6 +82,12 @@ ros2run <package-name> <node-name>
 ```shell
 ros2kill
 ```
+### ros2clean
+> Remove ros2 build log file and runtime logs
+
+```shell
+ros2clean
+```
 
 ---
 Powered by [ceoifung](https://github.com/ceoifung)
