@@ -111,12 +111,28 @@ ros2build(){
     fi
 }
 
+_kill_with_name(){
+    pidnum=`ps -ef|grep $1 | grep -v grep|awk '{print $2}'`
+    if [ "$pidnum" != "" ];then
+        for i in $pidnum
+        do
+            echo "start kill -9 $i"
+            kill -9 $i
+        done
+    fi
+}
+
 ros2kill(){
     # 杀死所有ROS 2进程
     local ros_ver
-    ros_ver=$(printenv ROS_DISTRO)
-    pkill -f "$ros_ver"
-    pkill -f "$ros_workspace"
+    if [ "$1" != "" ];then
+    # 杀死所有ROS 2进程
+        _kill_with_name $1
+    else
+        ros_ver=$(printenv ROS_DISTRO)
+        _kill_with_name $ros_ver
+        _kill_with_name $ros_workspace
+    fi
 }
 
 ros2clean(){

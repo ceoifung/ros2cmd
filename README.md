@@ -39,6 +39,17 @@ when you run `make.sh`, you will see os arch list, select the right arch. If you
 #?
 ```
 
+Finally, install
+```shell
+sudo dpkg -i <deb-package>
+
+# Add setup.bash
+vim ~/.bashrc
+
+# add new line 
+source <where you put setup.bash>
+```
+
 ## how to use
 > Note: The following commands will only associate the specified workspace `~/colcon_ws`, if you want to change it then you need to modify `XRROS_COLCON_WS`, command: `export XRROS_COLCON_WS=your ros2 workspace path`.
 
