@@ -74,7 +74,7 @@ ros2launch <package-name> <launch-file>
 
 ```shell
 # build specified package
-ros2build <package-name>
+ros2build <package-name> <package-name> ...
 # or build all workspace package
 ros2build
 ```
@@ -87,11 +87,11 @@ ros2build
 ros2run <package-name> <node-name>
 ```
 
-### ros2list
+### ros2show
 > list some ros2 parameters
 
 ```shell
-ros2list <arg>
+ros2show <arg>
 # supported parameters 
 # action     component  param      service    
 # interface  node       pkg        topic  

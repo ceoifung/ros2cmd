@@ -104,8 +104,24 @@ ros2build(){
         echo -e "${YELLOW}You should go to ros2 workspace[$XRROS_COLCON_WS] to build package, use ros2cd to quick switch directory${NC}"
     else
         if [ "$1" != "" ];then
-            colcon build --package-select $1
+        # 获取传入的参数
+            args=("$@")
+            num_args=${#args[@]}
+            # 构建packages-select参数
+            packages_select=""
+            for ((i=0; i<$num_args; i++))
+            do
+                if [ $i -eq $((num_args-1)) ]; then
+                    # 最后一个参数后面不添加逗号
+                    packages_select+=" ${args[$i]}"
+                else
+                    packages_select+=" ${args[$i]} "
+                fi
+            done
+            echo -e "${YELLOW}running colcon build --packages-select ${packages_select}...${NC}"
+            colcon build --packages-select $packages_select
         else
+            echo -e "${YELLOW}runing colcon build...${NC}"
             colcon build
         fi
     fi
@@ -167,11 +183,11 @@ ros2clean(){
     rm -rf $home_directory/$ros_workspace/log
 }
 
-ros2list(){
+ros2show(){
     if [ "$1" != "" ]; then
         ros2 $1 list
     else
-        echo "${ERROR}Missing params: ros2list <arg>${NC}"
+        echo "${ERROR}Missing params: ros2show <arg>${NC}"
     fi
 }
 
@@ -180,6 +196,6 @@ complete -F _ros2run_complete ros2run
 complete -W "${package_array[*]}" ros2cd
 complete -W "${package_array[*]}" ros2build
 complete -W "list" ros2kill
-complete -W "topic node service interface pkg param component action" ros2list
+complete -W "topic node service interface pkg param component action" ros2show
 # export yourself workspace
 export XRROS_COLCON_WS="$ros2_install_dir"
