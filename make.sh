@@ -61,7 +61,7 @@ description: A useful ros2 command simplify tools, Copyright (c) 2023, Powered b
 EOF
 
 echo "chmod to scripts"
-cp ./setup.bash/* $install_dir/
+cp ./setup.bash $install_dir/
 
 dpkg -b $output_dir ./$productName-$pkgArch-$apkVer.deb
 echo -e "\033[35mYou can use follow command to install deb-package:\033[0m\n\n\033[33msudo dpkg -i ./$productName-$pkgArch-$apkVer.deb \033[0m \n\n\033[44;37mAll done, thank you.\033[0m\n"
