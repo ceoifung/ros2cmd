@@ -1,18 +1,11 @@
 #!/bin/bash
-
-# Color variables
-GREEN='\033[0;32m'
-NC='\033[0m'
-YELLOW='\033[0;33m'
-ERROR='\033[0;31m'
-
-# find yourself workspace ros2 packages
+# xrapp的环境变量
 home_directory=$(echo ~)
 ros_workspace=colcon_ws
-# Your own ros2 workspace path
-ros2_install_dir="$home_directory/$ros_workspace"
-#package_names=$(find "$ros2_install_dir" -name "package.xml" -exec dirname {} \; | xargs -I {} basename {})
-#readarray -t package_array <<< "$package_names"
+
+ros2_install_dir="$home_directory/$ros_workspace" # 将此路径替换为您的 ROS 2 安装路径
+# package_names=$(find "$ros2_install_dir" -name "package.xml" -exec dirname {} \; | xargs -I {} basename {})
+# readarray -t package_array <<< "$package_names"
 # 动态根据工作空间获取所有的packages
 get_dynamic_pkg_options(){
     local ament_prefix_path
@@ -38,19 +31,26 @@ get_dynamic_pkg_options(){
     done
     echo "${package_names[@]}"  
 }
-###########################
 package_array=$(get_dynamic_pkg_options)
 
-# get ros2 packages launch files
+# 获取launch文件
 get_dynamic_launch_options()
 {
+    # local prev_param="$1"
+    # local options=""
+    # source_path=$(find $ros2_install_dir/src -type d -path "*${prev_param}")
+    # # 查找launch的路径
+    # launch_path=$(find $source_path/ -type d -path "*launch")
+    # launch_files=$(find "$launch_path" -type f -exec basename {} \;)
+    # readarray -t launch_array <<< "$launch_files"
+    # echo "${launch_array[@]}"
     local package_name=$1
     executable_files=$(ls $ros2_install_dir/install/$package_name/share/$package_name/launch)
     readarray -t executable_array <<< "$executable_files"
     echo "${executable_array[@]}" 
 }
 
-# get ros2 packages executable node
+# ros2 run的子菜单补全
 get_dynamic_install_options(){
     local package_name=$1
     executable_files=$(ls $ros2_install_dir/install/$package_name/lib/$package_name)
@@ -58,30 +58,39 @@ get_dynamic_install_options(){
     echo "${executable_array[@]}" 
 }
 
-# ros2launch auto complete function
 _ros2launch_complete()
 {
-    local cur prev options package_array
+    local cur prev options
+
+    # 当前输入的参数
     cur="${COMP_WORDS[COMP_CWORD]}"
+    # 上一个输入的参数
     prev="${COMP_WORDS[COMP_CWORD-1]}"
+    # 动态获取补全选项
+    # for
     for opt in "${package_array[@]}"; do
     if [[ "$prev" == $opt ]]; then
-            options=$(get_dynamic_launch_options "$prev")
+        # 根据当前选项生成补全选项
+        # 这里可以根据具体的逻辑来生成补全选项
+             options=$(get_dynamic_launch_options "$prev")
             COMPREPLY=( $(compgen -W "${options[*]}" -- "$cur") )
             return 0
         fi
     done
 
+    # 使用 compgen 生成补全建议
     COMPREPLY=( $(compgen -W "${package_array[*]}" -- "$cur") )
     return 0
 }
 
 
-# ros2run auto complete function
+# ros2 run的自动补全
 _ros2run_complete()
 {
-    local cur prev options package_array
+    local cur prev options
+    # 当前输入的参数
     cur="${COMP_WORDS[COMP_CWORD]}"
+    # 上一个输入的参数
     prev="${COMP_WORDS[COMP_CWORD-1]}"
     for opt in "${package_array[@]}"; do
     if [[ "$prev" == $opt ]]; then
@@ -90,9 +99,16 @@ _ros2run_complete()
             return 0
         fi
     done
+    # 使用 compgen 生成补全建议
     COMPREPLY=( $(compgen -W "${package_array[*]}" -- "$cur") )
     return 0
 }
+
+
+GREEN='\033[0;32m'
+NC='\033[0m'
+YELLOW='\033[0;33m'
+ERROR='\033[0;31m'
 
 ros2cd(){
     if [ "$1" != "" ];then
@@ -163,11 +179,20 @@ _kill_with_name(){
     fi
 }
 
+killros(){
+    # 杀死所有ROS 2进程
+    echo "start kill ros program, please wait a minute"
+    ros2 run xrrobot_base stop_rosts
+    ros_ver=$(printenv ROS_DISTRO)
+    _kill_with_name $ros_ver
+
+    _kill_with_name $ros_workspace
+
+    echo "Done"
+}
+
 ros2kill(){
-    # 杀死所有ROS 2进程
-    local ros_ver
     if [ "$1" != "" ];then
-    # 杀死所有ROS 2进程
         if [ "$1" == "list" ]; then
             # 获取ROS 2节点列表
             node_list=$(ros2 node list)
@@ -194,10 +219,9 @@ ros2kill(){
             # 杀死所有ROS 2进程
             _kill_with_name $1
         fi
+
     else
-        ros_ver=$(printenv ROS_DISTRO)
-        _kill_with_name $ros_ver
-        _kill_with_name $ros_workspace
+        killros
     fi
 }
 
@@ -233,5 +257,6 @@ complete -F _ros2pkg_complete ros2cd
 complete -F _ros2pkg_complete ros2build
 complete -W "list" ros2kill
 complete -W "topic node service interface pkg param component action" ros2show
-# export yourself workspace
+
+
 export XRROS_COLCON_WS="$ros2_install_dir"
