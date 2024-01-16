@@ -39,6 +39,7 @@ get_dynamic_pkg_options(){
     echo "${package_names[@]}"  
 }
 ###########################
+package_array=$(get_dynamic_pkg_options)
 
 # get ros2 packages launch files
 get_dynamic_launch_options()
@@ -63,7 +64,6 @@ _ros2launch_complete()
     local cur prev options package_array
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
-    package_array=$(get_dynamic_pkg_options)
     for opt in "${package_array[@]}"; do
     if [[ "$prev" == $opt ]]; then
             options=$(get_dynamic_launch_options "$prev")
@@ -83,7 +83,6 @@ _ros2run_complete()
     local cur prev options package_array
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
-    package_array=$(get_dynamic_pkg_options)
     for opt in "${package_array[@]}"; do
     if [[ "$prev" == $opt ]]; then
             options=$(get_dynamic_install_options "$prev")
