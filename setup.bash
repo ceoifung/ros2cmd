@@ -10,7 +10,7 @@ ERROR='\033[0;31m'
 home_directory=$(echo ~)
 ros_workspace=colcon_ws
 # Your own ros2 workspace path
-#ros2_install_dir="$home_directory/$ros_workspace"
+ros2_install_dir="$home_directory/$ros_workspace"
 #package_names=$(find "$ros2_install_dir" -name "package.xml" -exec dirname {} \; | xargs -I {} basename {})
 #readarray -t package_array <<< "$package_names"
 # 动态根据工作空间获取所有的packages
