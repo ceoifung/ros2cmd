@@ -115,11 +115,11 @@ ros2kill
 ros2kill <node-name>
 ``` 
 
-### ros2clean
+### ros2purge
 > Remove ros2 build log file and runtime logs
 
 ```shell
-ros2clean
+ros2purge
 ```
 
 ---
