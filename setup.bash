@@ -10,10 +10,34 @@ ERROR='\033[0;31m'
 home_directory=$(echo ~)
 ros_workspace=colcon_ws
 # Your own ros2 workspace path
-ros2_install_dir="$home_directory/$ros_workspace"
-package_names=$(find "$ros2_install_dir" -name "package.xml" -exec dirname {} \; | xargs -I {} basename {})
-readarray -t package_array <<< "$package_names"
+#ros2_install_dir="$home_directory/$ros_workspace"
+#package_names=$(find "$ros2_install_dir" -name "package.xml" -exec dirname {} \; | xargs -I {} basename {})
+#readarray -t package_array <<< "$package_names"
+# 动态根据工作空间获取所有的packages
+get_dynamic_pkg_options(){
+    local ament_prefix_path
+    # 获取 AMENT_PREFIX_PATH 环境变量的值
+    ament_prefix_path=$AMENT_PREFIX_PATH
 
+    # 将路径以分号分隔为一个数组
+    IFS=':' read -ra paths <<< "$ament_prefix_path"
+
+    # 声明一个空数组用于保存符合条件的 package 名称
+    package_names=()
+
+    # 遍历路径数组
+    for path in "${paths[@]}"; do
+        # 检查路径是否包含 "colcon_ws"
+        if [[ "$path" == *"${ros_workspace}"* ]]; then
+            # 提取路径中的最后一个字符串
+            package_name=$(basename "$path")
+
+            # 将 package 名称添加到数组中
+            package_names+=("$package_name")
+        fi
+    done
+    echo "${package_names[@]}"  
+}
 ###########################
 
 # get ros2 packages launch files
@@ -36,9 +60,10 @@ get_dynamic_install_options(){
 # ros2launch auto complete function
 _ros2launch_complete()
 {
-    local cur prev options
+    local cur prev options package_array
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
+    package_array=$(get_dynamic_pkg_options)
     for opt in "${package_array[@]}"; do
     if [[ "$prev" == $opt ]]; then
             options=$(get_dynamic_launch_options "$prev")
@@ -55,9 +80,10 @@ _ros2launch_complete()
 # ros2run auto complete function
 _ros2run_complete()
 {
-    local cur prev options
+    local cur prev options package_array
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
+    package_array=$(get_dynamic_pkg_options)
     for opt in "${package_array[@]}"; do
     if [[ "$prev" == $opt ]]; then
             options=$(get_dynamic_install_options "$prev")
@@ -176,7 +202,7 @@ ros2kill(){
     fi
 }
 
-ros2clean(){
+ros2purge(){
     echo "rm -rf $home_directory/.ros/log"
     rm -rf $home_directory/.ros/log
     echo "rm -rf $home_directory/$ros_workspace/log"
@@ -191,10 +217,21 @@ ros2show(){
     fi
 }
 
+# ros2 run的自动补全
+_ros2pkg_complete()
+{
+    local cur prev options
+    # 当前输入的参数
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    # 使用 compgen 生成补全建议
+    COMPREPLY=( $(compgen -W "$(get_dynamic_pkg_options)" -- "$cur") )
+    return 0
+}
+
 complete -F _ros2launch_complete ros2launch
 complete -F _ros2run_complete ros2run
-complete -W "${package_array[*]}" ros2cd
-complete -W "${package_array[*]}" ros2build
+complete -F _ros2pkg_complete ros2cd
+complete -F _ros2pkg_complete ros2build
 complete -W "list" ros2kill
 complete -W "topic node service interface pkg param component action" ros2show
 # export yourself workspace
